@@ -1,0 +1,306 @@
+import React, { useState, useEffect } from 'react';
+import { Routes, Route, Link, useNavigate, Navigate } from 'react-router-dom';
+import { 
+  LayoutDashboard, 
+  Newspaper, 
+  Megaphone, 
+  Calendar, 
+  Building2, 
+  Images, 
+  Settings, 
+  LogOut,
+  Menu,
+  X,
+  Plus
+} from 'lucide-react';
+import { newsAPI, announcementsAPI, eventsAPI, academicUnitsAPI, sliderAPI } from '../../utils/api';
+import { toast } from 'sonner';
+import { Button } from '../../components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '../../components/ui/dialog';
+
+const AdminDashboard = () => {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [user, setUser] = useState(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const userData = localStorage.getItem('user');
+    
+    if (!token || !userData) {
+      navigate('/admin/login');
+      return;
+    }
+    
+    setUser(JSON.parse(userData));
+  }, [navigate]);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    toast.success('Çıkış yapıldı');
+    navigate('/admin/login');
+  };
+
+  const menuItems = [
+    { icon: LayoutDashboard, label: 'Kontrol Paneli', path: '/admin/dashboard' },
+    { icon: Newspaper, label: 'Haberler', path: '/admin/news' },
+    { icon: Megaphone, label: 'Duyurular', path: '/admin/announcements' },
+    { icon: Calendar, label: 'Etkinlikler', path: '/admin/events' },
+    { icon: Building2, label: 'Akademik Birimler', path: '/admin/units' },
+    { icon: Images, label: 'Slider', path: '/admin/slider' },
+    { icon: Settings, label: 'Ayarlar', path: '/admin/settings' },
+  ];
+
+  if (!user) {
+    return <div className="flex items-center justify-center h-screen">
+      <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-600"></div>
+    </div>;
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-100" data-testid="admin-dashboard">
+      {/* Sidebar */}
+      <aside 
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-gradient-to-b from-blue-900 to-blue-800 text-white transform transition-transform duration-300 lg:translate-x-0 ${
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
+        <div className="flex items-center justify-between p-6 border-b border-blue-700">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-blue-600 font-bold">
+              ATA
+            </div>
+            <span className="font-bold">Admin Panel</span>
+          </div>
+          <button onClick={() => setSidebarOpen(false)} className="lg:hidden">
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+
+        <nav className="p-4 space-y-2">
+          {menuItems.map((item) => (
+            <Link
+              key={item.path}
+              to={item.path}
+              data-testid={`menu-${item.label.toLowerCase().replace(/\s/g, '-')}`}
+              onClick={() => setSidebarOpen(false)}
+              className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              <item.icon className="w-5 h-5" />
+              <span>{item.label}</span>
+            </Link>
+          ))}
+        </nav>
+
+        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-blue-700">
+          <div className="mb-3">
+            <p className="text-sm text-blue-200">Hoş geldiniz,</p>
+            <p className="font-semibold">{user.full_name}</p>
+          </div>
+          <button
+            onClick={handleLogout}
+            data-testid="logout-button"
+            className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
+          >
+            <LogOut className="w-5 h-5" />
+            <span>Çıkış Yap</span>
+          </button>
+        </div>
+      </aside>
+
+      {/* Main Content */}
+      <div className="lg:ml-64">
+        {/* Top Bar */}
+        <header className="bg-white shadow-sm">
+          <div className="flex items-center justify-between px-6 py-4">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="lg:hidden"
+              data-testid="open-sidebar-button"
+            >
+              <Menu className="w-6 h-6" />
+            </button>
+            <h1 className="text-2xl font-bold text-gray-900">Yönetim Paneli</h1>
+            <div className="flex items-center space-x-4">
+              <span className="text-sm text-gray-600">{user.email}</span>
+            </div>
+          </div>
+        </header>
+
+        {/* Content Area */}
+        <main className="p-6">
+          <Routes>
+            <Route index element={<Navigate to="/admin/dashboard" replace />} />
+            <Route path="dashboard" element={<DashboardHome />} />
+            <Route path="news" element={<NewsManager />} />
+            <Route path="announcements" element={<AnnouncementsManager />} />
+            <Route path="events" element={<EventsManager />} />
+            <Route path="units" element={<UnitsManager />} />
+            <Route path="slider" element={<SliderManager />} />
+            <Route path="settings" element={<SettingsManager />} />
+          </Routes>
+        </main>
+      </div>
+    </div>
+  );
+};
+
+// Dashboard Home Component
+const DashboardHome = () => {
+  const [stats, setStats] = useState({
+    news: 0,
+    announcements: 0,
+    events: 0,
+    units: 0
+  });
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
+  const fetchStats = async () => {
+    try {
+      const [newsRes, announcementsRes, eventsRes, unitsRes] = await Promise.all([
+        newsAPI.getAll(),
+        announcementsAPI.getAll(),
+        eventsAPI.getAll(),
+        academicUnitsAPI.getAll()
+      ]);
+
+      setStats({
+        news: newsRes.data.length,
+        announcements: announcementsRes.data.length,
+        events: eventsRes.data.length,
+        units: unitsRes.data.length
+      });
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+    }
+  };
+
+  const cards = [
+    { label: 'Toplam Haber', value: stats.news, color: 'from-blue-500 to-blue-700', icon: Newspaper },
+    { label: 'Toplam Duyuru', value: stats.announcements, color: 'from-green-500 to-green-700', icon: Megaphone },
+    { label: 'Toplam Etkinlik', value: stats.events, color: 'from-purple-500 to-purple-700', icon: Calendar },
+    { label: 'Akademik Birim', value: stats.units, color: 'from-orange-500 to-orange-700', icon: Building2 },
+  ];
+
+  return (
+    <div data-testid="dashboard-home">
+      <h2 className="text-3xl font-bold text-gray-900 mb-8">Kontrol Paneli</h2>
+      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {cards.map((card, index) => (
+          <div
+            key={index}
+            data-testid={`stat-card-${index}`}
+            className="bg-white rounded-xl shadow-lg p-6 card-hover"
+          >
+            <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${card.color} text-white flex items-center justify-center mb-4`}>
+              <card.icon className="w-6 h-6" />
+            </div>
+            <p className="text-3xl font-bold text-gray-900 mb-2">{card.value}</p>
+            <p className="text-gray-600">{card.label}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// News Manager Component (simplified)
+const NewsManager = () => {
+  const [news, setNews] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchNews();
+  }, []);
+
+  const fetchNews = async () => {
+    try {
+      const response = await newsAPI.getAll();
+      setNews(response.data);
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm('Bu haberi silmek istediğinizden emin misiniz?')) {
+      try {
+        await newsAPI.delete(id);
+        toast.success('Haber silindi');
+        fetchNews();
+      } catch (error) {
+        toast.error('Hata oluştu');
+      }
+    }
+  };
+
+  return (
+    <div data-testid="news-manager">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-3xl font-bold text-gray-900">Haberler</h2>
+        <Button data-testid="add-news-button" className="flex items-center space-x-2">
+          <Plus className="w-5 h-5" />
+          <span>Yeni Haber</span>
+        </Button>
+      </div>
+
+      {loading ? (
+        <div className="flex justify-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-600"></div>
+        </div>
+      ) : (
+        <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+          <table className="w-full">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Başlık</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kategori</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tarih</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">İşlemler</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {news.map((item) => (
+                <tr key={item.id} data-testid={`news-row-${item.id}`}>
+                  <td className="px-6 py-4">{item.title}</td>
+                  <td className="px-6 py-4">{item.category}</td>
+                  <td className="px-6 py-4">{new Date(item.published_date).toLocaleDateString('tr-TR')}</td>
+                  <td className="px-6 py-4 text-right">
+                    <button
+                      onClick={() => handleDelete(item.id)}
+                      data-testid={`delete-news-${item.id}`}
+                      className="text-red-600 hover:text-red-700"
+                    >
+                      Sil
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Similar managers for other sections (simplified placeholders)
+const AnnouncementsManager = () => <div data-testid="announcements-manager"><h2 className="text-3xl font-bold">Duyurular</h2></div>;
+const EventsManager = () => <div data-testid="events-manager"><h2 className="text-3xl font-bold">Etkinlikler</h2></div>;
+const UnitsManager = () => <div data-testid="units-manager"><h2 className="text-3xl font-bold">Akademik Birimler</h2></div>;
+const SliderManager = () => <div data-testid="slider-manager"><h2 className="text-3xl font-bold">Slider Yönetimi</h2></div>;
+const SettingsManager = () => <div data-testid="settings-manager"><h2 className="text-3xl font-bold">Ayarlar</h2></div>;
+
+export default AdminDashboard;

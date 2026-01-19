@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="theme-color" content="#000000" />
+        <meta name="description" content="ATA Üniversitesi tarafından yapılmıştır" />
+        <!--
+     manifest.json, web uygulamanız kullanıcının mobil cihazına veya 
+     masaüstüne yüklendiğinde kullanılan meta verileri sağlar. https://developers.google.com/web/fundamentals/web-app-manifest/
+    -->
+        <!--
+      Yukarıdaki etiketlerde %PUBLIC_URL% kullanımına dikkat edin.
+     Bu, derleme sırasında public klasörünün URL’siyle değiştirilecektir.
+      HTML’den yalnızca public klasörü içindeki dosyalara erişilebilir.
+
+      “/favicon.ico” veya “favicon.ico”nun aksine, “%PUBLIC_URL%/favicon.ico” 
+      hem istemci taraflı yönlendirme ile hem de kök olmayan bir public URL kullanıldığında doğru şekilde çalışacaktır.
+      npm run build komutunu çalıştırarak kök olmayan bir public URL’nin nasıl yapılandırılacağını öğrenin.
+    -->
+        <title>ATA Üniversitesi</title>
+        <!--
+        Bu iki betik test amacıyla eklenmiştir, lütfen düzenlemeyin veya kaldırmayın.
+        -->
+        <script src="https://unpkg.com/rrweb@latest/dist/rrweb.min.js"></script>
+        <script src="https://d2adkz2s9zrlge.cloudfront.net/rrweb-recorder-20250919-1.js"></script>
+        <!--
+       Bu iki betik Görsel Düzenlemeler için eklenmiştir, lütfen düzenlemeyin veya kaldırmayın.
+        -->
+        <script>
+            // Görsel düzenleme betiklerini sadece bir iframe içindeyken ve görsel düzenlemeler etkinse yükleyin.
+            if (window.self !== window.top && '%REACT_APP_ENABLE_VISUAL_EDITS%' === 'true') {
+                // Hata ayıklama (debug) monitör betiğini yükle.
+                var debugScript = document.createElement('script');
+                debugScript.src = 'https://assets.emergent.sh/scripts/debug-monitor.js';
+                document.head.appendChild(debugScript);
+
+                // Tailwind’i yapılandır.
+                window.tailwind = window.tailwind || {};
+                tailwind.config = {
+                    corePlugins: { preflight: false },
+                };
+
+                // Tailwind CDN’ini yükle.
+                var tailwindScript = document.createElement('script');
+                tailwindScript.src = 'https://cdn.tailwindcss.com';
+                document.head.appendChild(tailwindScript);
+            }
+        </script>
+    </head>
+    <body>
+        <noscript>You need to enable JavaScript to run this app.</noscript>
+        <div id="root"></div>
+        <!--
+      Bu HTML dosyası bir şablondur.
+      Eğer bunu doğrudan tarayıcıda açarsanız, boş bir sayfa göreceksiniz.
+
+      Bu dosyaya web fontları, meta etiketleri veya analiz kodları ekleyebilirsiniz.
+      Derleme adımı, birleştirilmiş (bundled) betikleri <body> etiketine yerleştirecektir.
+
+      Geliştirmeye başlamak için npm start veya yarn start komutunu çalıştırın.
+      Üretim için bir paket oluşturmak amacıyla npm run build veya yarn build komutunu kullanın.
+    -->
+
+                </p>
+            </div>
+        </a>
+        <script>
+            !(function (t, e) {
+                var o, n, p, r;
+                e.__SV ||
+                    ((window.posthog = e),
+                    (e._i = []),
+                    (e.init = function (i, s, a) {
+                        function g(t, e) {
+                            var o = e.split(".");
+                            2 == o.length && ((t = t[o[0]]), (e = o[1])),
+                                (t[e] = function () {
+                                    t.push(
+                                        [e].concat(
+                                            Array.prototype.slice.call(
+                                                arguments,
+                                                0,
+                                            ),
+                                        ),
+                                    );
+                                });
+                        }
+                        ((p = t.createElement("script")).type =
+                            "text/javascript"),
+                            (p.crossOrigin = "anonymous"),
+                            (p.async = !0),
+                            (p.src =
+                                s.api_host.replace(
+                                    ".i.posthog.com",
+                                    "-assets.i.posthog.com",
+                                ) + "/static/array.js"),
+                            (r =
+                                t.getElementsByTagName(
+                                    "script",
+                                )[0]).parentNode.insertBefore(p, r);
+                        var u = e;
+                        for (
+                            void 0 !== a ? (u = e[a] = []) : (a = "posthog"),
+                                u.people = u.people || [],
+                                u.toString = function (t) {
+                                    var e = "posthog";
+                                    return (
+                                        "posthog" !== a && (e += "." + a),
+                                        t || (e += " (stub)"),
+                                        e
+                                    );
+                                },
+                                u.people.toString = function () {
+                                    return u.toString(1) + ".people (stub)";
+                                },
+                                o =
+                                    "init me ws ys ps bs capture je Di ks register register_once register_for_session unregister unregister_for_session Ps getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSurveysLoaded onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey canRenderSurveyAsync identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty Es $s createPersonProfile Is opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing Ss debug xs getPageViewId captureTraceFeedback captureTraceMetric".split(
+                                        " ",
+                                    ),
+                                n = 0;
+                            n < o.length;
+                            n++
+                        )
+                            g(u, o[n]);
+                        e._i.push([i, s, a]);
+                    }),
+                    (e.__SV = 1));
+            })(document, window.posthog || []);
+            posthog.init("phc_yJW1VjHGGwmCbbrtczfqqNxgBDbhlhOWcdzcIJEOTFE", {
+                api_host: "https://us.i.posthog.com",
+                person_profiles: "identified_only", // veya 'always' kullanarak anonim kullanıcılar için de profiller oluşturabilirsiniz.
+            });
+        </script>
+    </body>
+</html>
